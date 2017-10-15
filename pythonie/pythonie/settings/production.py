@@ -1,8 +1,21 @@
+from django.core.management.utils import get_random_secret_key
 from pythonie.settings.configure import configure_redis
 from .base import *  # flake8: noqa
 
 # Disable debug mode
 DEBUG = False
+
+SECRET_KEY = get_random_secret_key()
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'HOST': 'postgres',
+        'PORT': '5432',
+    }
+}
 
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
@@ -16,7 +29,7 @@ AWS_HOST = 's3-eu-west-1.amazonaws.com'
 
 COMPRESS_OFFLINE = False
 
-REDIS_URL = os.environ.get('REDISCLOUD_URL')
+REDIS_URL = os.environ.get('REDISCLOUD_URL', 'redis')
 REDIS = configure_redis(REDIS_URL)
 
 # Send notification emails as a background task using Celery,

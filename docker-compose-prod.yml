@@ -1,0 +1,54 @@
+# XXX: Probably not ready to be used yet.
+version: "3"
+
+services:
+  web:
+    # point to the current folder
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      # This syncs the current folder of the host
+      # with the /code directory on the container
+      - .:/code
+      # this will let us map the static folder to a
+      # shared volume with nginx, allowing nginx to serve it
+      # - static-web-data:/code/pythonie/static
+    environment:
+      DJANGO_SETTINGS_MODULE: pythonie.settings.production
+    command: gunicorn --chdir pythonie pythonie.wsgi -b :8000 -w 2 --log-file -
+
+  # we will be able use nginx to serve static files
+  # nginx:
+  #   image: nginx:latest
+  #   ports:
+  #     - "80:80"
+  #   volumes:
+  #     - static-web-data:/www/static
+
+  postgres:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    volumes:
+      # this puts this containers /var/lib/postgresql/data/
+      # directory on the pgdata "named volume", which allows
+      # it to survive the container restarting
+      - pgdata:/var/lib/postgresql/data/
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      # this puts this containers /data direcctory
+      # on to the redisdata "named volume", which allows
+      # it to survive the container restarting
+      - redisdata:/data 
+
+# these are "named volumes", which mean they live on the
+# host machine and therefore can survive restarts
+volumes:
+  static-web-data:
+  pgdata:
+  redisdata:
